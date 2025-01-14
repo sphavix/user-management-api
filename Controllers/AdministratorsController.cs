@@ -10,7 +10,7 @@ namespace RoleBasedUserManagementApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "RoleAdmin")]
     public class AdministratorsController(UserManager<IdentityUser> _userManager, RoleManager<IdentityRole> _roleManager) : ControllerBase
     {
         [HttpGet("users")]

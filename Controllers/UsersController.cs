@@ -8,7 +8,7 @@ namespace RoleBasedUserManagementApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "User")]
+    [Authorize(Policy = "RoleUser")]
     public class UsersController(UserManager<IdentityUser> _userManager) : ControllerBase
     {
         [HttpGet("user-info")]
