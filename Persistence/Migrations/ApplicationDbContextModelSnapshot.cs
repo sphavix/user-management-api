@@ -47,6 +47,20 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "2",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -137,6 +151,25 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "2d300243-9dff-4eb7-8231-df00eb09ecf7",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "37ea6293-b4d3-499a-981f-4859f26340c8",
+                            Email = "rolebasedadmin@geeking.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ROLEBASEDADMIN@GEEKING.COM",
+                            NormalizedUserName = "ROLEBASEDADMIN@GEEKING.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEL+Vyf6tJ3xlwuiLRIX5IgRq9xblCXxDR4UwoJlZ2ticiL7ut8Q2ArkKZ96RWcG6yg==",
+                            PhoneNumber = "0812761542",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "197d7c06-2b0d-40ed-b1f7-96b079638b5e",
+                            TwoFactorEnabled = false,
+                            UserName = "rolebasedadmin@geeking.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -199,6 +232,13 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "2d300243-9dff-4eb7-8231-df00eb09ecf7",
+                            RoleId = "1"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
