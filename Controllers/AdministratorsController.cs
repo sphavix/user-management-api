@@ -42,7 +42,7 @@ namespace RoleBasedUserManagementApi.Controllers
                 return BadRequest(new { message = "Email address already exist!" });
             }
 
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            var user = new IdentityUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
 
             var results = await _userManager.CreateAsync(user, model.Password);
 

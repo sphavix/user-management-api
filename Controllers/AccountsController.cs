@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RoleBasedUserManagementApi.Models;
+using RoleBasedUserManagementApi.Persistence;
+using RoleBasedUserManagementApi.Services.Abstract;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
 using System.Security.Claims;
@@ -16,15 +18,20 @@ namespace RoleBasedUserManagementApi.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
-        public AccountsController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountsController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, 
+            IConfiguration configuration, ITokenService tokenService, ApplicationDbContext context)
         {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
 
         }
 
@@ -45,7 +52,7 @@ namespace RoleBasedUserManagementApi.Controllers
             }
 
 
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            var user = new IdentityUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -94,14 +101,55 @@ namespace RoleBasedUserManagementApi.Controllers
                 userClaims.AddRange(userRole.Select(role =>
                     new Claim(ClaimTypes.Role, role)));
 
-                var jwtToken = new JwtSecurityToken(
-                    issuer: _configuration["JwtSettings:Issuer"],
-                    expires: DateTime.Now.AddMinutes(double.Parse(_configuration["JwtSettings:ExpiryMinutes"]!)),
-                    claims: userClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!)),
-                    SecurityAlgorithms.HmacSha256));
+                var jwtToken = _tokenService.GetToken(userClaims);
+                var refreshToken = _tokenService.GetRefreshToken();
 
-                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(jwtToken) });
+                var tokenInfo = _context.TokenInfo.FirstOrDefault(x => x.Username == user.Email);
+
+                if(tokenInfo is null)
+                {
+                    var info = new TokenInfo
+                    {
+                        Username = user.Email!,
+                        RefreshToken = refreshToken,
+                        RefreshTokenExpiry = DateTime.Now.AddMinutes(double.Parse(_configuration["JwtSettings:ExpiryMinutes"]!))
+                    };
+                    _context.TokenInfo.Add(info);
+                }
+                else
+                {
+                    tokenInfo.RefreshToken = refreshToken;
+                    tokenInfo.RefreshTokenExpiry = DateTime.Now.AddMinutes(double.Parse(_configuration["JwtSettings:ExpiryMinutes"]!));
+                }
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch(Exception ex)
+                {
+                    return BadRequest(new { message = "Unable to create a new token!" });
+                }
+
+                return Ok(new LoginResponse
+                {
+                    Name = user.UserName!,
+                    Username = user.Email!,
+                    Token = jwtToken.Token!,
+                    RefreshToken = refreshToken,
+                    Expiration = jwtToken.ValidTo,
+                    StatusCode = 200,
+                    StatusMessage = "Logged in Successfully!"
+                });
+                //var jwtToken = new JwtSecurityToken(
+                //    issuer: _configuration["JwtSettings:Issuer"],
+                //    expires: DateTime.Now.AddMinutes(double.Parse(_configuration["JwtSettings:ExpiryMinutes"]!)),
+                //    claims: userClaims,
+                //    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!)),
+                //    SecurityAlgorithms.HmacSha256));
+
+                //return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(jwtToken) });
+                //return Ok(jwtToken);
             }
 
             return Unauthorized();

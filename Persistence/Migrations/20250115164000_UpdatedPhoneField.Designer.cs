@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoleBasedUserManagementApi.Persistence;
 
@@ -11,9 +12,11 @@ using RoleBasedUserManagementApi.Persistence;
 namespace RoleBasedUserManagementApi.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250115164000_UpdatedPhoneField")]
+    partial class UpdatedPhoneField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,18 +158,18 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4e282a9f-c1ea-4fca-8ce0-0bfb4786277b",
+                            Id = "1ef6d9c5-61ec-433b-9c6b-5f114b119b66",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "72da6578-5f9f-465a-befa-e245cd168b26",
+                            ConcurrencyStamp = "d5ed70b0-59df-4433-80dc-3eedfa07e168",
                             Email = "rolebasedadmin@geeking.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ROLEBASEDADMIN@GEEKING.COM",
                             NormalizedUserName = "ROLEBASEDADMIN@GEEKING.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN9o/8/a+zTRuThGJRXZOXx8jPFmubtfnYGJL+ivoRJoNEJKB6PjNDalm3b8Ysgd6Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIX+0kroaNCFkDaOuyxD01bV1CqhkRikO+j3sECdIxrYWRlN7pRYsNnbsraLNR4COg==",
                             PhoneNumber = "0812761542",
                             PhoneNumberConfirmed = true,
-                            SecurityStamp = "5fe4765f-4d7a-4621-a6a4-e38e1503ce47",
+                            SecurityStamp = "9e0c0154-7a0f-453f-a228-605852574f26",
                             TwoFactorEnabled = false,
                             UserName = "rolebasedadmin@geeking.com"
                         });
@@ -236,7 +239,7 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "4e282a9f-c1ea-4fca-8ce0-0bfb4786277b",
+                            UserId = "1ef6d9c5-61ec-433b-9c6b-5f114b119b66",
                             RoleId = "1"
                         });
                 });
@@ -258,30 +261,6 @@ namespace RoleBasedUserManagementApi.Persistence.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("RoleBasedUserManagementApi.Models.TokenInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RefreshTokenExpiry")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TokenInfo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
